@@ -22,7 +22,11 @@ def stockDataAccess():
         stockDataHeaders = ['Open','High','Low','Market Cap','P/E Ratio','Div Yield','52-week High','52-week Low']
 
         #obtaining data that can not be done iterably
-        stockData["Current"] = page.html.xpath('//*[@id="knowledge-finance-wholepage__entity-summary"]/div[3]/g-card-section/div/g-card-section/div[2]/div[1]/span[1]/span/span[1]/text()')[0]
+        try:
+            stockData["Current"] = page.html.xpath('//*[@id="knowledge-finance-wholepage__entity-summary"]/div[3]/g-card-section/div/g-card-section/div[2]/div[1]/span[1]/span/span[1]/text()')[0]
+        except IndexError:
+            print("\nStock code could not be found, please try again\n")
+            continue
         stockData["Daily Change"] = page.html.xpath('//*[@id="knowledge-finance-wholepage__entity-summary"]/div[3]/g-card-section/div/g-card-section/div[2]/div[1]/span[2]/span[1]/text()')[0]
         stockData["Daily Change (%)"] = page.html.xpath('//*[@id="knowledge-finance-wholepage__entity-summary"]/div[3]/g-card-section/div/g-card-section/div[2]/div[1]/span[2]/span[2]/span[1]/text()')[0]
 
