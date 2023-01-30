@@ -10,25 +10,35 @@ from requests_html import HTMLSession  # Run 'pip install requests-html' in term
 session = HTMLSession()
 
 
-stockCode = 'veu'  #change this code to any stock code to test, first run this code then verify its values with google
+
+def stockDataAccess():
+    while True:
+        stockCode = input("Enter code here to view full stock data, or 'q' to quit: ")  #change this code to any stock code to test, first run this code then verify its values with google
+        if stockCode == 'Q' or stockCode == 'q':
+            break
+        page = session.get('https://www.google.com/search?q=' + stockCode + '+stock')
+        page.html.render()
+        stockData = {}  # Data is transformed into a dictionary
+        stockDataHeaders = ['Open','High','Low','Market Cap','P/E Ratio','Div Yield','52-week High','52-week Low']
+
+        #obtaining data that can not be done iterably
+        stockData["Current"] = page.html.xpath('//*[@id="knowledge-finance-wholepage__entity-summary"]/div[3]/g-card-section/div/g-card-section/div[2]/div[1]/span[1]/span/span[1]/text()')[0]
+        stockData["Daily Change"] = page.html.xpath('//*[@id="knowledge-finance-wholepage__entity-summary"]/div[3]/g-card-section/div/g-card-section/div[2]/div[1]/span[2]/span[1]/text()')[0]
+        stockData["Daily Change (%)"] = page.html.xpath('//*[@id="knowledge-finance-wholepage__entity-summary"]/div[3]/g-card-section/div/g-card-section/div[2]/div[1]/span[2]/span[2]/span[1]/text()')[0]
+
+        #For loop is used to get data that comes from the table below the graph, which can be done iterably
+        for i in range(8):
+            j = i//3 + 1
+            k = i%3 + 1
+            stockData[stockDataHeaders[i]] = page.html.xpath('//*[@id="knowledge-finance-wholepage__entity-summary"]/div[3]/div/g-card-section[2]/div/div/div[' + str(j) + ']/table/tbody/tr[' + str(k) + ']/td[2]/div/text()')[0]
+
+        try:
+            stockName = page.html.xpath('//*[@id="rcnt"]/div[1]/div/div/div[3]/div[1]/div/div[2]/div/div/div/div[1]/span/text()')[0]
+        except IndexError:
+            stockName = stockCode.upper()
+
+        # printing the entire dictionary (to see results)
+        print(f'\n{stockName}\n{stockData}\n')
 
 
-page = session.get('https://www.google.com/search?q=' + stockCode + '+stock')
-page.html.render()
-stockData = {}  # Data is transformed into a dictionary
-stockDataHeaders = ['Open','High','Low','Market Cap','P/E Ratio','Div Yield','52-week High','52-week Low']
-
-#For loop is used to get data that comes from the table below the graph, which can be done iterably
-for i in range(8):
-    j = i//3 + 1
-    k = i%3 + 1
-    stockData[stockDataHeaders[i]] = page.html.xpath('//*[@id="knowledge-finance-wholepage__entity-summary"]/div[3]/div/g-card-section[2]/div/div/div[' + str(j) + ']/table/tbody/tr[' + str(k) + ']/td[2]/div/text()')[0]
-
-#obtaining data that can not be done iterably
-stockData["Current"] = page.html.xpath('//*[@id="knowledge-finance-wholepage__entity-summary"]/div[3]/g-card-section/div/g-card-section/div[2]/div[1]/span[1]/span/span[1]/text()')[0]
-stockData["Daily Change"] = page.html.xpath('//*[@id="knowledge-finance-wholepage__entity-summary"]/div[3]/g-card-section/div/g-card-section/div[2]/div[1]/span[2]/span[1]/text()')[0]
-stockData["Daily Change (%)"] = page.html.xpath('//*[@id="knowledge-finance-wholepage__entity-summary"]/div[3]/g-card-section/div/g-card-section/div[2]/div[1]/span[2]/span[2]/span[1]/text()')[0]
-
-
-# printing the entire dictionary (to see results)
-print(stockData)
+stockDataAccess()
