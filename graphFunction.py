@@ -1,10 +1,7 @@
 import yfinance as yf
 import matplotlib.pyplot as plt
 
-apple = yf.Ticker("AAPL")
-apple.basic_info
-apple_history = apple.history(period="2d")
-print(apple_history)
+
 
 def retrieve_stock_history(stock, period):
     stock = yf.Ticker(stock)
